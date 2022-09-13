@@ -10,7 +10,7 @@ def main():
 	
 	mW = fc.MainWindow()
 
-	mW.show()
+	mW.show() #Comment
 
 	sys.exit(app.exec())
 

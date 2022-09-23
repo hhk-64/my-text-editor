@@ -1,6 +1,0 @@
-Sürekli dinlemek
-
-Her 10 saniye veya 100e dolduğunda empty queue
-
-Insert to DB as List not single query
-

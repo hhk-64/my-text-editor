@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
-import os
+import os, json
 
 
 class MainWindow(QWidget):
@@ -14,6 +14,14 @@ class MainWindow(QWidget):
 		self.setWindowIcon(self.style().standardIcon(getattr(QStyle, "SP_FileIcon")))
 
 		self.layout = QHBoxLayout()
+
+
+		if not ReadJsonFile(): self.settingsData = CreateJsonFile()
+		else: self.settingsData = ReadJsonFile()
+
+		self.font_ = QFont()
+		self.font_.fromString(self.settingsData[0]["font"])
+
 
 		self.textBuffer = ["", False]
 		self.curFile = ""
@@ -41,6 +49,10 @@ class MainWindow(QWidget):
 		self.menuBar.setFixedSize(self.width(), self.menuBar.sizeHint().height())
 
 
+		self.menuBar.SettingsMenu = self.menuBar.addMenu("Settings")
+		self.menuBar.SettingsMenu.SettingsAction = self.menuBar.SettingsMenu.addAction("Change Font...")
+		self.menuBar.SettingsMenu.SettingsAction.triggered.connect(self.changeFont)
+		
 		self.curFileDisplay = QLabel("No File opened", self)
 		self.curFileDisplay.setStyleSheet("padding-left: 2px")
 		self.curFileDisplay.setFixedSize(self.width(), 25)
@@ -50,6 +62,7 @@ class MainWindow(QWidget):
 		self.TextArea = QPlainTextEdit(self)
 		self.TextArea.move(QPoint(0, 0+self.menuBar.height()))
 		self.TextArea.setFixedSize(self.width(), self.height()-self.menuBar.height()-self.curFileDisplay.height())
+		self.TextArea.setFont(self.font_)
 		self.TextArea.textChanged.connect(self.CheckSaveBuffer)
 	
 
@@ -112,3 +125,39 @@ class MainWindow(QWidget):
 			self.textBuffer = [content, True]
 			self.curFile = f
 			self.curFileDisplay.setText(self.curFile)
+	
+	@Slot()
+	def changeFont(self):
+		data = QFontDialog.getFont(self)
+		if data[0] == False: return
+		self.TextArea.setFont(data[1])
+		print(self.settingsData)
+		UpdateJsonFile(self.settingsData[1], data[1])
+	
+
+
+
+
+def ReadJsonFile():
+	try:
+		with open("settings.json", "r") as f:
+			data = json.load(f)
+			if "font" not in data.keys(): return False
+			else: return [data, os.path.realpath(f.name)]
+	except:
+		return False
+
+def CreateJsonFile():
+	with open("settings.json", "w") as f:
+		data = {
+			"font": "Arial,16,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,Standard"
+		}
+		json.dump(data, f, indent=4)
+		return [data, os.path.realpath(f.name)]
+
+def UpdateJsonFile(f, ctx):
+	with open(f, "w") as fl:
+		data = {
+			"font": ctx.toString()
+		}
+		json.dump(data, fl, indent=4)

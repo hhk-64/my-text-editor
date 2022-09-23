@@ -78,7 +78,7 @@ class MainWindow(QWidget):
 	
 	@Slot()
 	def CreateFile(self):
-		f = QFileDialog.getSaveFileName(self, "Create a new file", filter="Text Files (*.txt)")[0]
+		f = QFileDialog.getSaveFileName(self, "Create a new file", filter="Text Files (*.txt);;All Files (*.*)")[0]
 		if f == "": return
 		
 		with open(f, "w", encoding="UTF-8") as fl:
@@ -88,7 +88,7 @@ class MainWindow(QWidget):
 	
 	@Slot()
 	def OpenFile(self):
-		f = QFileDialog.getOpenFileName(self, "Open a file", filter="Text Files (*.txt)")[0]
+		f = QFileDialog.getOpenFileName(self, "Open a file", filter="Text Files (*.txt);;All Files (*.*)")[0]
 		if f != "":
 			with open(f, "r", encoding="UTF-8") as fl:
 				content = fl.read()
@@ -116,7 +116,7 @@ class MainWindow(QWidget):
 	
 	@Slot()
 	def SaveFileAs(self):
-		f = QFileDialog.getSaveFileName(self, "Save File As", filter="Text Files (*.txt)")[0]
+		f = QFileDialog.getSaveFileName(self, "Save File As", filter="Text Files (*.txt);;All Files (*.*)")[0]
 		if f == "": return
 		
 		with open(f, "w", encoding="UTF-8") as fl:
@@ -131,7 +131,6 @@ class MainWindow(QWidget):
 		data = QFontDialog.getFont(self)
 		if data[0] == False: return
 		self.TextArea.setFont(data[1])
-		print(self.settingsData)
 		UpdateJsonFile(self.settingsData[1], data[1])
 	
 

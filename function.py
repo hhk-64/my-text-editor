@@ -111,4 +111,4 @@ class MainWindow(QWidget):
 			fl.write(content)
 			self.textBuffer = [content, True]
 			self.curFile = f
-			self.curFileDisplay.setText(self.curFile)
+			self.curFileDisplay.setText(self.curFile) #

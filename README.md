@@ -2,4 +2,4 @@
 
 - Added "Change Color" setting
 
-# Added "Releases" folder | V1.0 Released
+# V1.0 Released

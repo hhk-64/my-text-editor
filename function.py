@@ -3,6 +3,8 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 import os, json
 
+from shiboken6 import isValid
+
 
 class MainWindow(QWidget):
 
@@ -21,6 +23,8 @@ class MainWindow(QWidget):
 
 		self.font_ = QFont()
 		self.font_.fromString(self.settingsData[0]["font"])
+
+		self.color_ = self.settingsData[0]["color"]
 
 
 		self.textBuffer = ["", False]
@@ -50,8 +54,12 @@ class MainWindow(QWidget):
 
 
 		self.menuBar.SettingsMenu = self.menuBar.addMenu("Settings")
-		self.menuBar.SettingsMenu.SettingsAction = self.menuBar.SettingsMenu.addAction("Change Font...")
-		self.menuBar.SettingsMenu.SettingsAction.triggered.connect(self.changeFont)
+		
+		self.menuBar.SettingsMenu.ChangeFontAction = self.menuBar.SettingsMenu.addAction("Change Font...")
+		self.menuBar.SettingsMenu.ChangeFontAction.triggered.connect(self.changeFont)
+
+		self.menuBar.SettingsMenu.ChangeColorAction = self.menuBar.SettingsMenu.addAction("Change Color...")
+		self.menuBar.SettingsMenu.ChangeColorAction.triggered.connect(self.changeColor)
 		
 		self.curFileDisplay = QLabel("No File opened", self)
 		self.curFileDisplay.setStyleSheet("padding-left: 2px")
@@ -59,10 +67,11 @@ class MainWindow(QWidget):
 		self.curFileDisplay.move(0, self.height()-self.curFileDisplay.sizeHint().height())
 
 
-		self.TextArea = QPlainTextEdit(self)
+		self.TextArea = QTextEdit(self)
 		self.TextArea.move(QPoint(0, 0+self.menuBar.height()))
 		self.TextArea.setFixedSize(self.width(), self.height()-self.menuBar.height()-self.curFileDisplay.height())
 		self.TextArea.setFont(self.font_)
+		self.TextArea.setStyleSheet(f"color: {self.color_}")
 		self.TextArea.textChanged.connect(self.CheckSaveBuffer)
 	
 
@@ -128,10 +137,29 @@ class MainWindow(QWidget):
 	
 	@Slot()
 	def changeFont(self):
-		data = QFontDialog.getFont(self)
-		if data[0] == False: return
-		self.TextArea.setFont(data[1])
-		UpdateJsonFile(self.settingsData[1], data[1])
+		font = QFontDialog.getFont(self)
+		if font[0] == False: return
+		self.TextArea.setFont(font[1])
+		data = ["font", font]
+		UpdateJsonFile(self.settingsData[1], data)
+	
+	@Slot()
+	def changeColor(self):
+		color = QColorDialog(self).getColor()
+		if color.isValid() == False: return
+		cursor = self.TextArea.textCursor()
+		initPos = cursor.position()
+		cursor.movePosition(cursor.Start, cursor.MoveAnchor)
+		cursor.movePosition(cursor.End, cursor.KeepAnchor)
+		fg = QTextCharFormat()
+		fg.setForeground(QBrush(color))
+		cursor.setCharFormat(fg)
+		cursor.clearSelection()
+		self.color_ = color.name()
+		self.TextArea.setStyleSheet(f"color: {self.color_}")
+		cursor.setPosition(initPos)
+		data = ["color", color.name()]
+		UpdateJsonFile(self.settingsData[1], data)
 	
 
 
@@ -141,7 +169,7 @@ def ReadJsonFile():
 	try:
 		with open("settings.json", "r") as f:
 			data = json.load(f)
-			if "font" not in data.keys(): return False
+			if "font" not in data.keys() or "color" not in data.keys(): return False
 			else: return [data, os.path.realpath(f.name)]
 	except:
 		return False
@@ -149,14 +177,36 @@ def ReadJsonFile():
 def CreateJsonFile():
 	with open("settings.json", "w") as f:
 		data = {
-			"font": "Arial,16,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,Standard"
+			"font": "Arial,16,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,Standard",
+			"color": "#000000"
 		}
 		json.dump(data, f, indent=4)
 		return [data, os.path.realpath(f.name)]
 
 def UpdateJsonFile(f, ctx):
-	with open(f, "w") as fl:
-		data = {
-			"font": ctx.toString()
-		}
-		json.dump(data, fl, indent=4)
+	if ctx[0] == "font":
+		with open(f, "r") as fl:
+			try:
+				data = json.load(fl)
+			except:
+				CreateJsonFile()
+				return
+		
+		data["font"] = ctx[1].toString()
+
+		with open(f, "w") as fl:
+			json.dump(data, fl, indent=4)
+
+
+	if ctx[0] == "color":
+		with open(f, "r") as fl:
+			try:
+				data = json.load(fl)
+			except:
+				CreateJsonFile()
+				return
+		
+		data["color"] = ctx[1]
+
+		with open(f, "w") as fl:
+			json.dump(data, fl, indent=4)

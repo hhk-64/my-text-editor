@@ -1,5 +1,11 @@
 # A Text Editor I made
 
+### V1.3 Released | Changelog (Sep. 28th)
+
+- Fixed some performance bugs
+- Added "Exit" option to close the program
+- Added Hotkeys
+
 ### V1.2 Released | Changelog (Sep. 27th)
 
 - Added prompt when unsaved changes are detected

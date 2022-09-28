@@ -36,26 +36,31 @@ class MainWindow(QWidget):
 
 		self.menuBar.FileMenu = self.menuBar.addMenu("File")
 
-		self.menuBar.FileMenu.NewFileAction = self.menuBar.FileMenu.addAction("New File...")
+		self.menuBar.FileMenu.NewFileAction = self.menuBar.FileMenu.addAction("New File...", QKeySequence("Ctrl+N"))
 		self.menuBar.FileMenu.NewFileAction.triggered.connect(self.CreateFile)
 
-		self.menuBar.FileMenu.OpenFileAction = self.menuBar.FileMenu.addAction("Open File...")
+		self.menuBar.FileMenu.OpenFileAction = self.menuBar.FileMenu.addAction("Open File...", QKeySequence("Ctrl+O"))
 		self.menuBar.FileMenu.OpenFileAction.triggered.connect(self.OpenFile)
 
 		self.menuBar.FileMenu.addSeparator()
 
-		self.menuBar.FileMenu.CloseFileAction = self.menuBar.FileMenu.addAction("Close File")
+		self.menuBar.FileMenu.CloseFileAction = self.menuBar.FileMenu.addAction("Close File", QKeySequence("Ctrl+Shift+C"))
 		self.menuBar.FileMenu.CloseFileAction.triggered.connect(self.CloseFile)
 		self.menuBar.FileMenu.CloseFileAction.setDisabled(True)
 
 		self.menuBar.FileMenu.addSeparator()
 
-		self.menuBar.FileMenu.SaveAction = self.menuBar.FileMenu.addAction("Save")
+		self.menuBar.FileMenu.SaveAction = self.menuBar.FileMenu.addAction("Save", QKeySequence("Ctrl+S"))
 		self.menuBar.FileMenu.SaveAction.triggered.connect(self.SaveFile)
 		self.menuBar.FileMenu.SaveAction.setDisabled(True)
 
-		self.menuBar.FileMenu.SaveAsAction = self.menuBar.FileMenu.addAction("Save As...")
+		self.menuBar.FileMenu.SaveAsAction = self.menuBar.FileMenu.addAction("Save As...", QKeySequence("Ctrl+Shift+S"))
 		self.menuBar.FileMenu.SaveAsAction.triggered.connect(self.SaveFileAs)
+
+		self.menuBar.FileMenu.addSeparator()
+
+		self.menuBar.FileMenu.ExitAction = self.menuBar.FileMenu.addAction("Exit", QKeySequence("Ctrl+Shift+Q"))
+		self.menuBar.FileMenu.ExitAction.triggered.connect(self.ExitProgram)
 
 		self.menuBar.setFixedSize(self.width(), self.menuBar.sizeHint().height())
 
@@ -124,6 +129,10 @@ class MainWindow(QWidget):
 
 	
 	@Slot()
+	def ExitProgram(self):
+		self.close()
+	
+	@Slot()
 	def CreateFile(self):
 		f = QFileDialog.getSaveFileName(self, "Create a new file", filter="Text Files (*.txt);;All Files (*.*)")[0]
 		if f == "": return
@@ -137,14 +146,15 @@ class MainWindow(QWidget):
 	@Slot()
 	def OpenFile(self):
 		f = QFileDialog.getOpenFileName(self, "Open a file", filter="Text Files (*.txt);;All Files (*.*)")[0]
-		if f != "":
-			with open(f, "r", encoding="UTF-8") as fl:
-				content = fl.read()
-				self.TextArea.setPlainText(content)
-				self.textBuffer = [content, True]
-				self.curFile = f
-				self.curFileDisplay.setText(self.curFile)
-				self.menuBar.FileMenu.CloseFileAction.setDisabled(False)
+		if f == "": return
+
+		with open(f, "r", encoding="UTF-8") as fl:
+			content = fl.read()
+			self.TextArea.setPlainText(content)
+			self.textBuffer = [content, True]
+			self.curFile = f
+			self.curFileDisplay.setText(self.curFile)
+			self.menuBar.FileMenu.CloseFileAction.setDisabled(False)
 	
 	@Slot()
 	def CheckSaveBuffer(self):
@@ -165,10 +175,10 @@ class MainWindow(QWidget):
 	
 	@Slot()
 	def SaveFileAs(self):
-		f = QFileDialog.getSaveFileName(self, "Save File As", filter="Text Files (*.txt);;All Files (*.*)")
-		if f[1] == False: return False
+		f = QFileDialog.getSaveFileName(self, "Save File As", filter="Text Files (*.txt);;All Files (*.*)")[0]
+		if f == "": return False
 		
-		with open(f[0], "w", encoding="UTF-8") as fl:
+		with open(f, "w", encoding="UTF-8") as fl:
 			content = self.TextArea.toPlainText()
 			fl.write(content)
 			self.textBuffer = [content, True]

@@ -1,13 +1,12 @@
-<!-- To-Do:
-
-- Open File -> check if buffer != textArea.content:
-  - If not then ask for save
-  - If it is then just open file
-
--->
-
-
 # A Text Editor I made
+
+### V2.0 Released | First Major Update | Changelog (Oct. 24th)
+
+- Improved performance and code readability
+- Removed "Change Color" and "Change Background Color" settings <br>
+	⤷ Instead added default "dark themed" colors
+- Added "Minimize" and "Exit" Button
+- Removed Windows Toolbar and added custom toolbar to match the dark theme
 
 ### V1.3 Released | Changelog (Sep. 28th)
 
